@@ -26,7 +26,7 @@ class killseeds(_PluginBase):
     # 插件图标
     plugin_icon = "delete.jpg"
     # 插件版本
-    plugin_version = "1.1"
+    plugin_version = "2.1"
     # 插件作者
     plugin_author = "jxxghp"
     # 作者主页
