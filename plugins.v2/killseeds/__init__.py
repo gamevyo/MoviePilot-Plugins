@@ -26,7 +26,7 @@ class killseeds(_PluginBase):
     # 插件图标
     plugin_icon = "delete.jpg"
     # 插件版本
-    plugin_version = "2.5"
+    plugin_version = "2.6"
     # 插件作者
     plugin_author = "vyo"
     # 作者主页
@@ -694,7 +694,7 @@ class killseeds(_PluginBase):
         # 完成时间
         # date_done = torrent.last_activity if torrent.last_activity > 0 else torrent.added_on
         # 现在时间
-        date_now = date_now = int(time.time())
+        date_now = int(time.time())
         # 做种时间
         # torrent_seeding_time = date_now - date_done if date_done else 0
         # 已未活动 秒
