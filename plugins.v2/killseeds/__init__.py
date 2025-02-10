@@ -9,11 +9,10 @@ from apscheduler.schedulers.background import BackgroundScheduler
 from apscheduler.triggers.cron import CronTrigger
 
 from app.core.config import settings
+from app.helper.downloader import DownloaderHelper
 from app.log import logger
-from app.modules.qbittorrent import Qbittorrent
-from app.modules.transmission import Transmission
 from app.plugins import _PluginBase
-from app.schemas import NotificationType
+from app.schemas import NotificationType, ServiceInfo
 from app.utils.string import StringUtils
 
 lock = threading.Lock()
@@ -33,15 +32,14 @@ class killseeds(_PluginBase):
     # 作者主页
     author_url = "https://github.com/jxxghp"
     # 插件配置项ID前缀
-    plugin_config_prefix = "killseeds_"
+    plugin_config_prefix = "killseed_"
     # 加载顺序
     plugin_order = 8
     # 可使用的用户级别
     auth_level = 2
 
     # 私有属性
-    qb = None
-    tr = None
+    downloader_helper = None
     _event = threading.Event()
     _scheduler = None
     _enabled = False
@@ -65,6 +63,7 @@ class killseeds(_PluginBase):
     _torrentcategorys = None
 
     def init_plugin(self, config: dict = None):
+        self.downloader_helper = DownloaderHelper()
         if config:
             self._enabled = config.get("enabled")
             self._onlyonce = config.get("onlyonce")
@@ -88,8 +87,6 @@ class killseeds(_PluginBase):
         self.stop_service()
 
         if self.get_state() or self._onlyonce:
-            self.qb = Qbittorrent()
-            self.tr = Transmission()
             if self._onlyonce:
                 self._scheduler = BackgroundScheduler(timezone=settings.TZ)
                 logger.info(f"自动删种服务启动，立即运行一次")
@@ -149,7 +146,7 @@ class killseeds(_PluginBase):
         """
         if self.get_state():
             return [{
-                "id": "TorrentRemover",
+                "id": "killseeds",
                 "name": "自动删种服务",
                 "trigger": CronTrigger.from_crontab(self._cron),
                 "func": self.delete_torrents,
@@ -210,7 +207,7 @@ class killseeds(_PluginBase):
                                 },
                                 'content': [
                                     {
-                                        'component': 'VTextField',
+                                        'component': 'VCronField',
                                         'props': {
                                             'model': 'cron',
                                             'label': '执行周期',
@@ -254,14 +251,13 @@ class killseeds(_PluginBase):
                                     {
                                         'component': 'VSelect',
                                         'props': {
-                                            'chips': True,
                                             'multiple': True,
+                                            'chips': True,
+                                            'clearable': True,
                                             'model': 'downloaders',
                                             'label': '下载器',
-                                            'items': [
-                                                {'title': 'Qbittorrent', 'value': 'qbittorrent'},
-                                                {'title': 'Transmission', 'value': 'transmission'}
-                                            ]
+                                            'items': [{"title": config.name, "value": config.name}
+                                                      for config in self.downloader_helper.get_configs().values()]
                                         }
                                     }
                                 ]
@@ -588,16 +584,44 @@ class killseeds(_PluginBase):
         except Exception as e:
             print(str(e))
 
-    def __get_downloader(self, dtype: str):
+    @property
+    def service_infos(self) -> Optional[Dict[str, ServiceInfo]]:
+        """
+        服务信息
+        """
+        if not self._downloaders:
+            logger.warning("尚未配置下载器，请检查配置")
+            return None
+
+        services = self.downloader_helper.get_services(name_filters=self._downloaders)
+        if not services:
+            logger.warning("获取下载器实例失败，请检查配置")
+            return None
+
+        active_services = {}
+        for service_name, service_info in services.items():
+            if service_info.instance.is_inactive():
+                logger.warning(f"下载器 {service_name} 未连接，请检查配置")
+            else:
+                active_services[service_name] = service_info
+
+        if not active_services:
+            logger.warning("没有已连接的下载器，请检查配置")
+            return None
+
+        return active_services
+
+    def __get_downloader(self, name: str):
         """
         根据类型返回下载器实例
         """
-        if dtype == "qbittorrent":
-            return self.qb
-        elif dtype == "transmission":
-            return self.tr
-        else:
-            return None
+        return self.service_infos.get(name).instance
+
+    def __get_downloader_config(self, name: str):
+        """
+        根据类型返回下载器实例配置
+        """
+        return self.service_infos.get(name).config
 
     def delete_torrents(self):
         """
@@ -674,7 +698,7 @@ class killseeds(_PluginBase):
         # 做种时间
         torrent_seeding_time = date_now - date_done if date_done else 0
         # 平均上传速度
-        # torrent_upload_avs = torrent.uploaded / torrent_seeding_time if torrent_seeding_time else 0
+       # torrent_upload_avs = torrent.uploaded / torrent_seeding_time if torrent_seeding_time else 0
         # 大小 单位：GB
         sizes = self._size.split('-') if self._size else []
         minsize = float(sizes[0]) * 1024 * 1024 * 1024 if sizes else 0
@@ -761,6 +785,7 @@ class killseeds(_PluginBase):
         remove_torrents = []
         # 下载器对象
         downloader_obj = self.__get_downloader(downloader)
+        downloader_config = self.__get_downloader_config(downloader)
         # 标题
         if self._labels:
             tags = self._labels.split(',')
@@ -774,7 +799,7 @@ class killseeds(_PluginBase):
             return []
         # 处理种子
         for torrent in torrents:
-            if downloader == "qbittorrent":
+            if downloader_config.type == "qbittorrent":
                 item = self.__get_qb_torrent(torrent)
             else:
                 item = self.__get_tr_torrent(torrent)
@@ -789,7 +814,7 @@ class killseeds(_PluginBase):
                 name = remove_torrent.get("name")
                 size = remove_torrent.get("size")
                 for torrent in torrents:
-                    if downloader == "qbittorrent":
+                    if downloader_config.type == "qbittorrent":
                         plus_id = torrent.hash
                         plus_name = torrent.name
                         plus_size = torrent.size
