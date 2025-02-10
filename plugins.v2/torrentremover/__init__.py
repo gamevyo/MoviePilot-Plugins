@@ -309,7 +309,7 @@ class killseeds(_PluginBase):
                                         'component': 'VTextField',
                                         'props': {
                                             'model': 'time',
-                                            'label': '做种时间（小时）',
+                                            'label': '最后活动时间（小时）',
                                             'placeholder': ''
                                         }
                                     }
@@ -692,13 +692,13 @@ class killseeds(_PluginBase):
         检查QB下载任务是否符合条件
         """
         # 完成时间
-        date_done = torrent.completion_on if torrent.completion_on > 0 else torrent.added_on
+        date_done = torrent.last_activity if torrent.completion_on > 0 else torrent.added_on
         # 现在时间
         date_now = int(time.mktime(datetime.now().timetuple()))
         # 做种时间
         torrent_seeding_time = date_now - date_done if date_done else 0
         # 平均上传速度
-        torrent_upload_avs = torrent.uploaded / torrent_seeding_time if torrent_seeding_time else 0
+       # torrent_upload_avs = torrent.uploaded / torrent_seeding_time if torrent_seeding_time else 0
         # 大小 单位：GB
         sizes = self._size.split('-') if self._size else []
         minsize = float(sizes[0]) * 1024 * 1024 * 1024 if sizes else 0
@@ -712,8 +712,8 @@ class killseeds(_PluginBase):
         # 文件大小
         if self._size and (torrent.size >= int(maxsize) or torrent.size <= int(minsize)):
             return None
-        if self._upspeed and torrent_upload_avs >= float(self._upspeed) * 1024:
-            return None
+       # if self._upspeed and torrent_upload_avs >= float(self._upspeed) * 1024:
+        #    return None
         if self._pathkeywords and not re.findall(self._pathkeywords, torrent.save_path, re.I):
             return None
         if self._trackerkeywords and not re.findall(self._trackerkeywords, torrent.tracker, re.I):
