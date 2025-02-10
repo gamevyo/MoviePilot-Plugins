@@ -3,11 +3,12 @@
         "name": "自动删种,自行修改版",
         "description": "自动删除下载器中的下载任务。",
         "labels": "做种",
-        "version": "2.5",
+        "version": "2.6",
         "icon": "delete.jpg",
         "author": "jxxghp",
         "level": 2,
         "history": {
+            "v2.6": "fixed bug",
             "v2.5": "增加iatime变量",
             "v2.0.1": "修复兼容MoviePilot V2 版本",
             "v2.0": "兼容MoviePilot V2 版本"
