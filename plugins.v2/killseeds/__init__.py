@@ -26,9 +26,9 @@ class killseeds(_PluginBase):
     # 插件图标
     plugin_icon = "delete.jpg"
     # 插件版本
-    plugin_version = "2.3"
+    plugin_version = "2.4"
     # 插件作者
-    plugin_author = "jxxghp"
+    plugin_author = "vyo"
     # 作者主页
     author_url = "https://github.com/jxxghp"
     # 插件配置项ID前缀
