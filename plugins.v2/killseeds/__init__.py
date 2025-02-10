@@ -26,7 +26,7 @@ class killseeds(_PluginBase):
     # 插件图标
     plugin_icon = "delete.jpg"
     # 插件版本
-    plugin_version = "2.4"
+    plugin_version = "2.5"
     # 插件作者
     plugin_author = "vyo"
     # 作者主页
@@ -692,11 +692,16 @@ class killseeds(_PluginBase):
         检查QB下载任务是否符合条件
         """
         # 完成时间
-        date_done = torrent.last_activity if torrent.last_activity > 0 else torrent.added_on
+        # date_done = torrent.last_activity if torrent.last_activity > 0 else torrent.added_on
         # 现在时间
-        date_now = int(time.mktime(datetime.now().timetuple()))
+        date_now = date_now = int(time.time())
         # 做种时间
-        torrent_seeding_time = date_now - date_done if date_done else 0
+        # torrent_seeding_time = date_now - date_done if date_done else 0
+        # 已未活动 秒
+        if (not torrent.last_activity or torrent.last_activity < 0):
+            iatime = 0
+        else:
+            iatime = date_now - torrent.last_activity
         # 平均上传速度
        # torrent_upload_avs = torrent.uploaded / torrent_seeding_time if torrent_seeding_time else 0
         # 大小 单位：GB
@@ -707,7 +712,7 @@ class killseeds(_PluginBase):
         if self._ratio and torrent.ratio <= float(self._ratio):
             return None
         # 做种时间 单位：小时
-        if self._time and torrent_seeding_time <= float(self._time) * 3600:
+        if self._time and iatime <= float(self._time) * 3600:
             return None
         # 文件大小
         if self._size and (torrent.size >= int(maxsize) or torrent.size <= int(minsize)):
