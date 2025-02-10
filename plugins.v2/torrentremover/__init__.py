@@ -20,13 +20,13 @@ lock = threading.Lock()
 
 class TorrentRemover(_PluginBase):
     # 插件名称
-    plugin_name = "自动删种"
+    plugin_name = "自动删种,自行修改版"
     # 插件描述
     plugin_desc = "自动删除下载器中的下载任务。"
     # 插件图标
     plugin_icon = "delete.jpg"
     # 插件版本
-    plugin_version = "2.2"
+    plugin_version = "1.0"
     # 插件作者
     plugin_author = "jxxghp"
     # 作者主页
