@@ -26,7 +26,7 @@ class killseeds(_PluginBase):
     # 插件图标
     plugin_icon = "delete.jpg"
     # 插件版本
-    plugin_version = "2.2"
+    plugin_version = "2.3"
     # 插件作者
     plugin_author = "jxxghp"
     # 作者主页
@@ -692,7 +692,7 @@ class killseeds(_PluginBase):
         检查QB下载任务是否符合条件
         """
         # 完成时间
-        date_done = torrent.last_activity if torrent.completion_on > 0 else torrent.added_on
+        date_done = torrent.last_activity if torrent.last_activity > 0 else torrent.added_on
         # 现在时间
         date_now = int(time.mktime(datetime.now().timetuple()))
         # 做种时间
