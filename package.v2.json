@@ -14,7 +14,7 @@
             "v2.0": "兼容MoviePilot V2 版本"
         }
     },
-    "killseeds": {
+    "qbc": {
         "name": "QBC",
         "description": "QBC。",
         "labels": "做种",
