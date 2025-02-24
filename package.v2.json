@@ -28,5 +28,17 @@
             "v2.0.1": "修复兼容MoviePilot V2 版本",
             "v2.0": "兼容MoviePilot V2 版本"
         }
+    },
+    "qblimiter": {
+        "name": "QB限速",
+        "description": "交互命令远程操作QB限速。",
+        "labels": "做种",
+        "version": "1.0",
+        "icon": "Qbittorrent_A.png",
+        "author": "gamevyo",
+        "level": 1,
+        "history": {
+            "v1.0": "bulid"
+        }
     }
 }
