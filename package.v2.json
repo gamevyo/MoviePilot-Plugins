@@ -14,15 +14,16 @@
             "v2.0": "兼容MoviePilot V2 版本"
         }
     },
-"Qblimiter": {
+"qblimiter": {
         "name": "QB限速",
         "description": "交互命令远程操作QB限速。",
         "labels": "下载管理,Qbittorrent",
-        "version": "2.1",
+        "version": "2.2",
         "icon": "Qbittorrent_A.png",
         "author": "Gamevyo",
         "level": 1,
         "history": {
+            "v2.2": "bulid",
             "v2.1": "bulid"
         }
     }
