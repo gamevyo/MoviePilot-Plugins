@@ -14,21 +14,6 @@
             "v2.0": "兼容MoviePilot V2 版本"
         }
     },
-    "qbc": {
-        "name": "QBC",
-        "description": "QBC。",
-        "labels": "做种",
-        "version": "2.1",
-        "icon": "delete.jpg",
-        "author": "vyo",
-        "level": 2,
-        "history": {
-            "v2.6": "fixed bug",
-            "v2.5": "增加iatime变量",
-            "v2.0.1": "修复兼容MoviePilot V2 版本",
-            "v2.0": "兼容MoviePilot V2 版本"
-        }
-    },
     "qblimiter": {
         "name": "QB限速",
         "description": "交互命令远程操作QB限速。",
